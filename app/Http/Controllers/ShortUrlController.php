@@ -7,6 +7,7 @@ use App\Models\ShortUrl;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreShortUrlRequest;
 use App\Http\Requests\UpdateShortUrlRequest;
+use App\Notifications\ShortUrlCreated;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,12 +43,14 @@ class ShortUrlController extends Controller
      */
     public function store(StoreShortUrlRequest $request)
     {
-        ShortUrl::create([
+        $shortUrl = ShortUrl::create([
             'user_id' => Auth::id(),
             'original_url' => $request->original_url,
             'short_code' => Str::random(6),
         ]);
 
+        $user = auth()->user();
+        $user->notify(new ShortUrlCreated($shortUrl));
         return redirect()->route('short-urls.index')->with('success', 'Short URL created!');
     }
 

@@ -2,21 +2,24 @@
 
 namespace App\Notifications;
 
+use App\Models\ShortUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ShortUrlCreated extends Notification
+class ShortUrlCreated extends Notification implements ShouldQueue
 {
     use Queueable;
+
+    protected $shortUrl;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(ShortUrl $shortUrl)
     {
-        //
+        $this->shortUrl = $shortUrl;
     }
 
     /**
@@ -35,9 +38,11 @@ class ShortUrlCreated extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject('Your Short URL is Ready')
+            ->greeting('Hello ' . $notifiable->name . '!')
+            ->line('Your short URL has been successfully created.')
+            ->action('Visit Short URL', route('short-urls.redirect', $this->shortUrl->short_code))
+            ->line('Thanks for using our service!');
     }
 
     /**
