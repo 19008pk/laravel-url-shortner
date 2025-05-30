@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the short URLs owned by the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ShortUrl>
+     */
+    public function shortUrls()
+    {
+        return $this->hasMany(ShortUrl::class);
+    }
 }
